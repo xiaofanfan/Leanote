@@ -13,10 +13,6 @@ package com.akioss.leanote.common;
  *****************************************************************************************************************/
 public class Constants {
 
-    public static final String APP_NAME = "Leanote";
-
-    public static final String URL_BASE = "http://www.leanote.com/api/";
-
     /* bugly appId */
     public static final String BuglyAppId = "900013085";
 

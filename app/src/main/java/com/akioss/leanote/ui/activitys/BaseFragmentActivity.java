@@ -1,13 +1,16 @@
 package com.akioss.leanote.ui.activitys;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
+import com.akioss.leanote.Leanote;
 import com.akioss.leanote.common.AppManager;
+import com.akioss.leanote.presenters.BasePresenter;
 
 import java.lang.ref.WeakReference;
 
@@ -23,14 +26,12 @@ import java.lang.ref.WeakReference;
  * Why & What is modified :
  *****************************************************************************************************************/
 @SuppressWarnings("unused")
-public abstract class BaseFragmentActivity extends AppCompatActivity implements IBaseView {
-
-    protected static String TAG = "";
+public abstract class BaseFragmentActivity<P extends BasePresenter> extends AppCompatActivity {
 
     /**
      * activity弱引用 防止activity内存泄露
      */
-    private WeakReference< Activity> mContext;
+    private WeakReference< Activity> weakActivity;
     /**
      * fragment管理器
      */
@@ -44,25 +45,47 @@ public abstract class BaseFragmentActivity extends AppCompatActivity implements 
      */
     public Fragment mCurrentFragment;
 
+    /**
+     * 当前Activity presenter
+     */
+    protected P presenter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TAG = getComponentName().getClassName();
         //Activity弱引用
-        mContext = new WeakReference<Activity>(this);
-        AppManager.pushTask(mContext);
+        weakActivity = new WeakReference<Activity>(this);
+        AppManager.add(weakActivity);
         //获取FragmentManager
-        mFragmentManager = getFragmentManager();
+        mFragmentManager = getSupportFragmentManager();
 
-        if (bindLayout() <= 0){
-            throw new RuntimeException("don't exec bindLayout() method!");
-        } else {
+        if (bindLayout() <= 0) {
+            throw new RuntimeException("you should be bind layout frist!");
+        }else {
             setContentView(bindLayout());
         }
 
-        initParams();
         initView();
+        initParams();
+
+        if (presenter != null) {
+            presenter.attach(getContext());
+        }
+
         doBusiness();
+    }
+
+    protected abstract @LayoutRes int bindLayout();
+
+    protected abstract void initView();
+
+    protected abstract void initParams();
+
+    protected abstract void doBusiness();
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     /**
@@ -73,12 +96,28 @@ public abstract class BaseFragmentActivity extends AppCompatActivity implements 
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (presenter != null) {
+            presenter.detach();
+        }
+        if (weakActivity != null) {
+            AppManager.remove(weakActivity);
+        }
+        Leanote.get().getRefWatcher().watch(this);
+    }
+
+    protected void setPresenter(P presenter){
+        this.presenter = presenter;
+    }
+
     /**
      * get context
      */
     protected Activity getContext() {
-        if (mContext != null) {
-            return mContext.get();
+        if (weakActivity != null) {
+            return weakActivity.get();
         } else {
             return null;
         }

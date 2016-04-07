@@ -3,7 +3,6 @@ package com.akioss.leanote.ui.activitys;
 import android.content.Intent;
 import android.os.Build;
 import android.support.design.widget.TextInputLayout;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
@@ -13,11 +12,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.akioss.leanote.R;
-import com.akioss.leanote.common.AppManager;
+import com.akioss.leanote.presenters.impl.LoginPresenter;
 import com.akioss.leanote.ui.mvpview.LoginView;
-import com.akioss.leanote.ui.presenters.impl.LoginPresenter;
 import com.akioss.leanote.utils.AnimateUtil;
-import com.akioss.leanote.utils.Reg;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -34,7 +31,8 @@ import butterknife.OnClick;
  * Modified Date:
  * Why & What is modified :
  *****************************************************************************************************************/
-public class LoginActivity extends BaseFragmentActivity implements LoginView, View.OnClickListener {
+public class LoginActivity extends BaseFragmentActivity<LoginPresenter>
+        implements LoginView, View.OnClickListener {
 
     @Bind(R.id.username_edt)
     EditText usernameEdt;
@@ -53,7 +51,6 @@ public class LoginActivity extends BaseFragmentActivity implements LoginView, Vi
     @Bind(R.id.register_txt)
     TextView registerTxt;
 
-    LoginPresenter presenter;
 
     @Override
     public int bindLayout() {
@@ -62,7 +59,7 @@ public class LoginActivity extends BaseFragmentActivity implements LoginView, Vi
 
     @Override
     public void initParams() {
-        presenter = new LoginPresenter(this);
+        setPresenter(new LoginPresenter(this));
     }
 
     @Override
@@ -72,7 +69,6 @@ public class LoginActivity extends BaseFragmentActivity implements LoginView, Vi
         /* 整体渐入动画 */
         View decView = getWindow().getDecorView();
         AnimateUtil.alphaIn(decView);
-
     }
 
     private void initStatusBar() {
@@ -85,7 +81,7 @@ public class LoginActivity extends BaseFragmentActivity implements LoginView, Vi
 
     @Override
     public void doBusiness() {
-
+        //do nothing
     }
 
     @OnClick({R.id.signin_layout})
@@ -93,7 +89,8 @@ public class LoginActivity extends BaseFragmentActivity implements LoginView, Vi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.signin_layout:
-                presenter.login(getEmail(), getPwd());
+                presenter.login(usernameEdt.getText().toString().trim(),
+                        pwdEdt.getText().toString().trim());
                 break;
             default:
                 break;
@@ -104,21 +101,23 @@ public class LoginActivity extends BaseFragmentActivity implements LoginView, Vi
     public void moveToMainActivity() {
         Intent intent = new Intent(getContext(), MainActivity.class);
         startActivity(intent);
-        AppManager.removeAll();
     }
 
     @Override
-    public void showLoginProgress() {
-        signinLayout.setClickable(false);
-        siginTxt.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
+    public void setEmailErrorMsg(String msg) {
+        usernameEdt.setError(msg);
     }
 
     @Override
-    public void hideLoginProgress() {
-        signinLayout.setClickable(true);
-        siginTxt.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.GONE);
+    public void setPwdErrorMsg(String msg) {
+        pwdEdt.setError(msg);
+    }
+
+    @Override
+    public void setLoading(boolean flag) {
+        signinLayout.setClickable(!flag);
+        siginTxt.setVisibility(flag ? View.GONE : View.VISIBLE);
+        progressBar.setVisibility(flag ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -127,29 +126,8 @@ public class LoginActivity extends BaseFragmentActivity implements LoginView, Vi
     }
 
     @Override
-    public String getEmail() {
-        String email = usernameEdt.getText().toString();
-        if (!Reg.isEmail(email)){
-            usernameEdt.setError(getResources().getString(R.string.email_erroe));
-            return null;
-        }
-        return email;
-    }
-
-    @Override
-    public String getPwd() {
-        String pwd = pwdEdt.getText().toString();
-        if (TextUtils.isEmpty(pwd)) {
-            pwdEdt.setError(getResources().getString(R.string.pwd_error));
-            return null;
-        }
-        return pwd;
-    }
-
-    @Override
     public void onBackPressed() {
         super.onBackPressed();
-        AppManager.exit();
     }
 
 }

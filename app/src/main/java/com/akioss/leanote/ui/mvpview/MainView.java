@@ -1,7 +1,5 @@
 package com.akioss.leanote.ui.mvpview;
 
-import android.support.annotation.StringRes;
-
 /*****************************************************************************************************************
  * Author: liyi
  * Create Date: 15/12/7.
@@ -13,15 +11,8 @@ import android.support.annotation.StringRes;
  * Modified Date:
  * Why & What is modified :
  *****************************************************************************************************************/
-public interface MainView {
+public interface MainView extends BaseView{
 
     void setUpHeader(String logoUrl, String userName, String email);
 
-    void showProgress();
-
-    void hideProgress();
-
-    void showSnackMsg(String msg);
-
-    void showSnackMsg(@StringRes int resId);
 }

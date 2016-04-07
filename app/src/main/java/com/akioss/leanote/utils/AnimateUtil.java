@@ -130,4 +130,24 @@ public class AnimateUtil {
         return ObjectAnimator.ofPropertyValuesHolder(view, pvhAlpha).
                 setDuration(300);
     }
+
+    public static ObjectAnimator launcherScreen(View view) {
+        PropertyValuesHolder pvhAlpha = PropertyValuesHolder.ofKeyframe(View.ALPHA,
+                Keyframe.ofFloat(1f, 1f),
+                Keyframe.ofFloat(.3f, .3f)
+        );
+
+        PropertyValuesHolder pvhScaleX = PropertyValuesHolder.ofKeyframe(View.SCALE_X,
+                Keyframe.ofFloat(1f, 1f),
+                Keyframe.ofFloat(1.5f, 1.5f)
+        );
+
+        PropertyValuesHolder pvhScaleY = PropertyValuesHolder.ofKeyframe(View.SCALE_Y,
+                Keyframe.ofFloat(1f, 1f),
+                Keyframe.ofFloat(1.5f, 1.5f)
+                );
+
+        return ObjectAnimator.ofPropertyValuesHolder(view, pvhAlpha, pvhScaleX, pvhScaleY).
+                setDuration(1500);
+    }
 }

@@ -11,17 +11,11 @@ package com.akioss.leanote.ui.mvpview;
  * Modified Date:
  * Why & What is modified :
  *****************************************************************************************************************/
-public interface LoginView {
+public interface LoginView extends BaseView{
 
     void moveToMainActivity();
 
-    void showLoginProgress();
+    void setEmailErrorMsg(String msg);
 
-    void hideLoginProgress();
-
-    void showMsg(String msg);
-
-    String getEmail();
-
-    String getPwd();
+    void setPwdErrorMsg(String msg);
 }
